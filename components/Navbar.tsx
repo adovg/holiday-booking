@@ -16,9 +16,7 @@ interface NavbarProps {
 export default function Navbar({
   navLinks = [
     { href: "/", label: "Home" },
-    { href: "/about", label: "About" },
-    { href: "/projects", label: "Projects" },
-    { href: "/contact", label: "Contact" },
+    { href: "/calendar", label: "Calendar" },
   ],
   logo = <span className="text-xl font-bold">Holiday</span>,
 }: NavbarProps) {
@@ -26,7 +24,7 @@ export default function Navbar({
 
   return (
     <nav className="fixed top-0 left-0 right-0 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <Link href="/" className="flex items-center gap-2">
             {logo}

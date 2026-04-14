@@ -1,3 +1,5 @@
 export default function Home() {
-  return <div>Hello World</div>;
+  return <div className='flex pt-2'>
+    Hello World
+  </div>;
 }
