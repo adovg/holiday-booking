@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { checkAuth, signOut as signOutAuth } from "@/lib/auth-client";
 
 interface NavLink {
   href: string;
@@ -20,7 +22,36 @@ export default function Navbar({
   ],
   logo = <span className="text-xl font-bold">Holiday</span>,
 }: NavbarProps) {
+  const router = useRouter();
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const initAuth = async () => {
+      try {
+        const currentUser = await checkAuth();
+        setUser(currentUser);
+      } catch (error) {
+        console.error("Error checking auth:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initAuth();
+  }, []);
+
+  const handleSignOut = async () => {
+    try {
+      await signOutAuth();
+      setUser(null);
+      router.refresh();
+      router.push("/login");
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 z-50">
@@ -30,7 +61,6 @@ export default function Navbar({
             {logo}
           </Link>
 
-          {/* Desktop navigation */}
           <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
               <Link
@@ -41,9 +71,46 @@ export default function Navbar({
                 {link.label}
               </Link>
             ))}
+
+            {loading ? (
+              <span className="text-zinc-400">Загрузка...</span>
+            ) : user ? (
+              <>
+                <Link
+                  href="/auth/signup"
+                  className="text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white transition-colors font-medium"
+                >
+                  Регистрация
+                </Link>
+                <Link
+                  href="/auth/signout"
+                  className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors font-medium"
+                  onClick={handleSignOut}
+                >
+                  Выход
+                </Link>
+                <span className="text-sm text-zinc-500 dark:text-zinc-400">
+                  {user.email}
+                </span>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/auth/login"
+                  className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors font-medium"
+                >
+                  Вход
+                </Link>
+                <Link
+                  href="/auth/signup"
+                  className="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 transition-colors font-medium"
+                >
+                  Регистрация
+                </Link>
+              </>
+            )}
           </div>
 
-          {/* Mobile menu button */}
           <button
             className="md:hidden text-zinc-600 dark:text-zinc-300 p-2"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -77,7 +144,6 @@ export default function Navbar({
             </svg>
           </button>
 
-          {/* Mobile menu */}
           {isMenuOpen && (
             <div className="md:hidden absolute top-16 left-0 right-0 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 p-4 flex flex-col gap-4 shadow-lg">
               {navLinks.map((link) => (
@@ -90,6 +156,50 @@ export default function Navbar({
                   {link.label}
                 </Link>
               ))}
+
+              {loading ? (
+                <span className="text-zinc-400 py-2">Загрузка...</span>
+              ) : user ? (
+                <>
+                  <Link
+                    href="/auth/signup"
+                    className="text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white transition-colors font-medium py-2"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Регистрация
+                  </Link>
+                  <Link
+                    href="/auth/signout"
+                    className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors font-medium py-2"
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      handleSignOut();
+                    }}
+                  >
+                    Выход
+                  </Link>
+                  <span className="text-sm text-zinc-500 dark:text-zinc-400 py-2">
+                    {user.email}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/auth/login"
+                    className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors font-medium py-2"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Вход
+                  </Link>
+                  <Link
+                    href="/auth/signup"
+                    className="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 transition-colors font-medium py-2"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Регистрация
+                  </Link>
+                </>
+              )}
             </div>
           )}
         </div>
