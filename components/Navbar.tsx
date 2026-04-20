@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { checkAuth, signOut as signOutAuth } from "@/lib/auth-client";
+import { checkAuth, signOut as signOutAuth, supabaseClient } from "@/lib/auth-client";
 
 interface NavLink {
   href: string;
@@ -40,6 +40,18 @@ export default function Navbar({
     };
 
     initAuth();
+
+    const { data: subscription } = supabaseClient.auth.onAuthStateChange((_, session) => {
+      if (session?.user) {
+        setUser(session.user);
+      } else {
+        setUser(null);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const handleSignOut = async () => {
@@ -83,7 +95,8 @@ export default function Navbar({
                   Регистрация
                 </Link>
                 <Link
-                  href="/auth/signout"
+                  href="/login"
+href="/login"
                   className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors font-medium"
                   onClick={handleSignOut}
                 >
@@ -96,13 +109,13 @@ export default function Navbar({
             ) : (
               <>
                 <Link
-                  href="/auth/login"
+                  href="/login"
                   className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors font-medium"
                 >
                   Вход
                 </Link>
                 <Link
-                  href="/auth/signup"
+                  href="/signup"
                   className="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 transition-colors font-medium"
                 >
                   Регистрация
@@ -169,7 +182,7 @@ export default function Navbar({
                     Регистрация
                   </Link>
                   <Link
-                    href="/auth/signout"
+                    href="/login"
                     className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors font-medium py-2"
                     onClick={() => {
                       setIsMenuOpen(false);
