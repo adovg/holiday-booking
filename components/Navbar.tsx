@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { checkAuth, signOut as signOutAuth, supabaseClient } from "@/lib/auth-client";
+import type { Subscription } from '@supabase/supabase-js';
 
 interface NavLink {
   href: string;
@@ -41,7 +42,7 @@ export default function Navbar({
 
     initAuth();
 
-    const { data: subscription } = supabaseClient.auth.onAuthStateChange((_, session) => {
+    const authSub: any = supabaseClient.auth.onAuthStateChange((_, session) => {
       if (session?.user) {
         setUser(session.user);
       } else {
@@ -50,8 +51,7 @@ export default function Navbar({
     });
 
     return () => {
-      // clean up
-      subscription?.unsubscribe?.();
+      (authSub as any).unsubscribe?.();
     };
   }, []);
 

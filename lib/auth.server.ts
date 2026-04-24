@@ -32,6 +32,7 @@ export async function checkAuth() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  console.log('server user', user);
 
   return user;
 }
@@ -39,6 +40,8 @@ export async function checkAuth() {
 // Обработка пропущенной аутентификации
 export async function requireAuth() {
   const user = await checkAuth();
+  console.log('server user', user)
+
 
   if (!user) {
     redirect('/login');
@@ -49,6 +52,7 @@ export async function requireAuth() {
 
 // Вход пользователя
 export async function signIn(email: string, password: string) {
+  
   const supabase = await getServerClient();
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
